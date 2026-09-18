@@ -3,742 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🎂 曾曦玥 · Birthday Protocol</title>
+<title>⬢ 曾曦玥 · BIRTHDAY PROTOCOL v3.0 ⬢</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --neon-cyan: #00f0ff;
-  --neon-magenta: #ff00aa;
-  --neon-purple: #aa00ff;
-  --neon-blue: #0088ff;
-  --neon-gold: #ffd700;
-  --neon-green: #00ff88;
-  --bg-dark: #0a0a1a;
-  --bg-darker: #050510;
-  --grid-color: rgba(0, 240, 255, 0.05);
+  --cyan:#00f0ff; --magenta:#ff00aa; --purple:#aa00ff; --gold:#ffd700;
+  --green:#00ff88; --red:#ff3366; --bg:#03030a; --bg2:#0a0a1a;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body {
-  width: 100%; height: 100%;
-  overflow: hidden;
-  background: var(--bg-darker);
-  font-family: 'Orbitron', 'PingFang SC', 'Microsoft YaHei', monospace;
-  color: #fff;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
+  font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif; color:#fff; cursor:crosshair; }
 
-/* === 背景层 === */
-#bg-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 1;
-}
+#matrix-rain { position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; opacity:0.35; }
+#name-sphere { position:fixed; top:0; left:0; width:100%; height:100%; z-index:2; }
+#particle-net { position:fixed; top:0; left:0; width:100%; height:100%; z-index:3; }
 
-/* 透视网格地面 */
-.grid-floor {
-  position: fixed; bottom: 0; left: 0;
-  width: 100%; height: 45%;
-  background: 
-    linear-gradient(0deg, rgba(0,240,255,0.08) 0%, transparent 60%),
-    linear-gradient(90deg, transparent 49.7%, var(--grid-color) 49.7%, var(--grid-color) 50.3%, transparent 50.3%) 0 0/40px 40px,
-    linear-gradient(0deg, transparent 49.7%, var(--grid-color) 49.7%, var(--grid-color) 50.3%, transparent 50.3%) 0 0/40px 40px;
-  transform: perspective(400px) rotateX(55deg);
-  transform-origin: bottom center;
-  z-index: 2;
-  opacity: 0.6;
-}
+.scanline { position:fixed; inset:0; z-index:40; pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.012) 2px,rgba(0,240,255,0.012) 4px); }
 
-/* 扫描线 */
-.scanline {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(0, 240, 255, 0.015) 2px, rgba(0, 240, 255, 0.015) 4px
-  );
-  z-index: 10;
-  pointer-events: none;
-}
+.center-glow { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle,rgba(0,240,255,0.12) 0%,rgba(170,0,255,0.06) 30%,transparent 70%);
+  filter:blur(50px); z-index:4; animation:glowPulse 5s ease-in-out infinite; }
+@keyframes glowPulse { 0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)} }
 
-/* 中央光晕 */
-.center-glow {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,240,255,0.15) 0%, rgba(170,0,255,0.08) 30%, transparent 70%);
-  filter: blur(40px);
-  z-index: 3;
-  animation: glowPulse 5s ease-in-out infinite;
-}
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-}
+.grid-floor { position:fixed; bottom:0; left:0; width:100%; height:40%; z-index:5; opacity:0.5;
+  background:
+    linear-gradient(0deg,rgba(0,240,255,0.06) 0%,transparent 60%),
+    linear-gradient(90deg,transparent 49.7%,rgba(0,240,255,0.04) 49.7%,rgba(0,240,255,0.04) 50.3%,transparent 50.3%) 0 0/40px 40px,
+    linear-gradient(0deg,transparent 49.7%,rgba(0,240,255,0.04) 49.7%,rgba(0,240,255,0.04) 50.3%,transparent 50.3%) 0 0/40px 40px;
+  transform:perspective(400px) rotateX(55deg); transform-origin:bottom center; }
 
-/* === HUD 边框装饰 === */
-.hud-corner {
-  position: fixed;
-  width: 60px; height: 60px;
-  z-index: 20;
-  pointer-events: none;
-}
-.hud-corner::before, .hud-corner::after {
-  content: '';
-  position: absolute;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0,240,255,0.5);
-}
-.hud-tl { top: 15px; left: 15px; }
-.hud-tl::before { top: 0; left: 0; width: 30px; height: 2px; }
-.hud-tl::after { top: 0; left: 0; width: 2px; height: 30px; }
-.hud-tr { top: 15px; right: 15px; }
-.hud-tr::before { top: 0; right: 0; width: 30px; height: 2px; }
-.hud-tr::after { top: 0; right: 0; width: 2px; height: 30px; }
-.hud-bl { bottom: 15px; left: 15px; }
-.hud-bl::before { bottom: 0; left: 0; width: 30px; height: 2px; }
-.hud-bl::after { bottom: 0; left: 0; width: 2px; height: 30px; }
-.hud-br { bottom: 15px; right: 15px; }
-.hud-br::before { bottom: 0; right: 0; width: 30px; height: 2px; }
-.hud-br::after { bottom: 0; right: 0; width: 2px; height: 30px; }
+.hud-c { position:fixed; width:50px; height:50px; z-index:50; pointer-events:none; }
+.hud-c::before,.hud-c::after{content:'';position:absolute;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(0,240,255,0.5)}
+.hud-tl{top:12px;left:12px}.hud-tl::before{top:0;left:0;width:28px;height:2px}.hud-tl::after{top:0;left:0;width:2px;height:28px}
+.hud-tr{top:12px;right:12px}.hud-tr::before{top:0;right:0;width:28px;height:2px}.hud-tr::after{top:0;right:0;width:2px;height:28px}
+.hud-bl{bottom:12px;left:12px}.hud-bl::before{bottom:0;left:0;width:28px;height:2px}.hud-bl::after{bottom:0;left:0;width:2px;height:28px}
+.hud-br{bottom:12px;right:12px}.hud-br::before{bottom:0;right:0;width:28px;height:2px}.hud-br::after{bottom:0;right:0;width:2px;height:28px}
 
-/* === 加载序列 === */
-#loading-screen {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: var(--bg-darker);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 1s ease;
-}
-#loading-screen.hide {
-  opacity: 0;
-  pointer-events: none;
-}
-.loading-text {
-  font-family: 'Courier New', monospace;
-  color: var(--neon-cyan);
-  font-size: 14px;
-  line-height: 2;
-  text-align: left;
-  min-height: 300px;
-}
-.loading-text .line {
-  opacity: 0;
-  animation: typeLine 0.3s ease forwards;
-}
-.loading-text .line:nth-child(1) { animation-delay: 0.2s; }
-.loading-text .line:nth-child(2) { animation-delay: 0.5s; }
-.loading-text .line:nth-child(3) { animation-delay: 0.8s; }
-.loading-text .line:nth-child(4) { animation-delay: 1.1s; }
-.loading-text .line:nth-child(5) { animation-delay: 1.4s; }
-.loading-text .line:nth-child(6) { animation-delay: 1.7s; }
-.loading-text .line:nth-child(7) { animation-delay: 2.0s; }
-.loading-text .line:nth-child(8) { animation-delay: 2.3s; }
-.loading-text .line:nth-child(9) { animation-delay: 2.6s; }
-@keyframes typeLine {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-.loading-bar {
-  width: 300px; height: 3px;
-  background: rgba(0,240,255,0.1);
-  margin-top: 30px;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.loading-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
-  box-shadow: 0 0 10px var(--neon-cyan);
-  width: 0%;
-  animation: loadFill 2.8s ease forwards;
-}
-@keyframes loadFill {
-  0% { width: 0%; }
-  30% { width: 45%; }
-  60% { width: 72%; }
-  100% { width: 100%; }
-}
-.loading-title {
-  font-size: 12px;
-  color: rgba(0,240,255,0.5);
-  margin-bottom: 20px;
-  letter-spacing: 4px;
-}
+.corner-lbl{position:fixed;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.3);letter-spacing:2px;z-index:50;pointer-events:none}
+.cl-top{top:18px;left:50%;transform:translateX(-50%)}
+.cl-bot{bottom:18px;left:50%;transform:translateX(-50%)}
 
-/* === 主内容 === */
-#main-content {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  opacity: 0;
-  transition: opacity 1.5s ease;
-}
-#main-content.show { opacity: 1; }
+.data-stream{position:fixed;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.15);line-height:1.8;z-index:15;pointer-events:none;overflow:hidden}
+.ds-left{left:16px;top:70px;height:calc(100vh - 140px);width:100px}
+.ds-right{right:16px;top:70px;height:calc(100vh - 140px);width:100px;text-align:right}
+.data-stream .item{opacity:0;animation:streamFade 10s linear infinite}
+@keyframes streamFade{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}
 
-/* 全息卡片 */
-.holo-card {
-  position: relative;
-  width: 92%;
-  max-width: 520px;
-  padding: 50px 40px 45px;
-  background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(20,10,40,0.85));
-  border: 1px solid rgba(0,240,255,0.3);
-  border-radius: 4px;
-  box-shadow: 
-    0 0 30px rgba(0,240,255,0.15),
-    0 0 60px rgba(170,0,255,0.1),
-    inset 0 0 30px rgba(0,240,255,0.05);
-  backdrop-filter: blur(10px);
-  overflow: hidden;
-}
-.holo-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0,240,255,0.15), transparent);
-  animation: cardSweep 4s ease-in-out infinite;
-}
-@keyframes cardSweep {
-  0%, 100% { left: -100%; }
-  50% { left: 100%; }
-}
-.holo-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border: 1px solid transparent;
-  background: linear-gradient(135deg, var(--neon-cyan), transparent, var(--neon-magenta)) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
+#loading{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s ease}
+#loading.hide{opacity:0;pointer-events:none}
+.l-title{font-family:'Courier New',monospace;font-size:14px;color:rgba(0,240,255,0.4);letter-spacing:6px;margin-bottom:30px;animation:lPulse 2s ease-in-out infinite}
+@keyframes lPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+.l-text{font-family:'Courier New',monospace;font-size:13px;color:var(--cyan);line-height:2.2;text-align:left;min-height:260px;max-width:500px;width:90%}
+.l-text .ln{opacity:0;animation:lType 0.1s ease forwards}
+@keyframes lType{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.l-bar{width:320px;height:3px;background:rgba(0,240,255,0.1);margin-top:25px;border-radius:2px;overflow:hidden}
+.l-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--purple));box-shadow:0 0 10px var(--cyan);width:0;animation:lFill 3s ease forwards}
+@keyframes lFill{0%{width:0}15%{width:18%}35%{width:42%}55%{width:65%}75%{width:82%}100%{width:100%}}
 
-/* 卡片顶部 HUD 条 */
-.card-hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  font-family: 'Courier New', monospace;
-  font-size: 10px;
-  color: rgba(0,240,255,0.5);
-  letter-spacing: 2px;
-}
-.card-hud .dot {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--neon-green);
-  box-shadow: 0 0 6px var(--neon-green);
-  margin-right: 6px;
-  animation: dotBlink 2s ease-in-out infinite;
-}
-@keyframes dotBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
+#main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:60;opacity:0;transition:opacity 1.5s ease}
+#main.show{opacity:1}
 
-/* 名字 */
-.name-glow {
-  font-size: 52px;
-  font-weight: 900;
-  text-align: center;
-  letter-spacing: 6px;
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue), var(--neon-magenta));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(0,240,255,0.5));
-  margin-bottom: 5px;
-  animation: nameFlicker 8s ease-in-out infinite;
-}
-@keyframes nameFlicker {
-  0%, 95%, 100% { opacity: 1; }
-  96% { opacity: 0.5; }
-  97% { opacity: 1; }
-  98% { opacity: 0.3; }
-}
+.holo{ position:relative; width:92%; max-width:540px; padding:45px 35px 40px;
+  background:linear-gradient(135deg,rgba(10,10,30,0.92),rgba(20,10,40,0.92));
+  border:1px solid rgba(0,240,255,0.25); border-radius:4px;
+  box-shadow:0 0 40px rgba(0,240,255,0.12),0 0 80px rgba(170,0,255,0.08),inset 0 0 40px rgba(0,240,255,0.03);
+  backdrop-filter:blur(12px); overflow:hidden; animation:hFadeIn 1.5s ease; }
+@keyframes hFadeIn{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.holo::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,240,255,0.12),transparent);animation:hSweep 4s ease-in-out infinite}
+@keyframes hSweep{0%,100%{left:-100%}50%{left:100%}}
 
-.name-en {
-  text-align: center;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: rgba(0,240,255,0.4);
-  letter-spacing: 8px;
-  margin-bottom: 25px;
-}
+.h-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;font-family:'Courier New',monospace;font-size:10px;color:rgba(0,240,255,0.4);letter-spacing:2px}
+.h-hud .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);margin-right:6px;animation:dBlink 2s ease-in-out infinite}
+@keyframes dBlink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* 生日标记 */
-.birthday-badge {
-  display: inline-block;
-  margin: 0 auto 25px;
-  padding: 8px 30px;
-  border: 1px solid rgba(0,240,255,0.4);
-  border-radius: 30px;
-  font-family: 'Courier New', monospace;
-  font-size: 16px;
-  color: var(--neon-cyan);
-  letter-spacing: 4px;
-  background: rgba(0,240,255,0.05);
-  box-shadow: 0 0 15px rgba(0,240,255,0.2), inset 0 0 15px rgba(0,240,255,0.05);
-  animation: badgePulse 3s ease-in-out infinite;
-}
-@keyframes badgePulse {
-  0%, 100% { box-shadow: 0 0 15px rgba(0,240,255,0.2), inset 0 0 15px rgba(0,240,255,0.05); }
-  50% { box-shadow: 0 0 25px rgba(0,240,255,0.4), inset 0 0 20px rgba(0,240,255,0.1); }
-}
+.nm{font-family:'Orbitron','Noto Sans SC',sans-serif;font-size:54px;font-weight:900;text-align:center;letter-spacing:6px;
+  background:linear-gradient(135deg,var(--cyan),var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 20px rgba(0,240,255,0.4));margin-bottom:4px;animation:nmFlicker 10s ease-in-out infinite}
+@keyframes nmFlicker{0%,93%,100%{opacity:1;filter:drop-shadow(0 0 20px rgba(0,240,255,0.4))}94%{opacity:0.4;filter:drop-shadow(0 0 5px rgba(255,0,170,0.2))}95%{opacity:1}96%{opacity:0.2;filter:drop-shadow(0 0 2px rgba(0,240,255,0.1))}97%{opacity:1}}
+.nm-en{text-align:center;font-family:'Courier New',monospace;font-size:11px;color:rgba(0,240,255,0.3);letter-spacing:8px;margin-bottom:22px}
 
-/* 分隔线 */
-.divider {
-  width: 60%;
-  height: 1px;
-  margin: 0 auto 25px;
-  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  position: relative;
-}
-.divider::after {
-  content: '◆';
-  position: absolute;
-  top: -8px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 8px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 10px var(--neon-cyan);
-}
+.bd-badge{display:inline-block;margin:0 auto 22px;padding:8px 28px;border:1px solid rgba(0,240,255,0.35);border-radius:30px;
+  font-family:'Courier New',monospace;font-size:15px;color:var(--cyan);letter-spacing:4px;background:rgba(0,240,255,0.04);
+  box-shadow:0 0 15px rgba(0,240,255,0.15),inset 0 0 15px rgba(0,240,255,0.04);animation:bdPulse 3s ease-in-out infinite}
+@keyframes bdPulse{0%,100%{box-shadow:0 0 15px rgba(0,240,255,0.15),inset 0 0 15px rgba(0,240,255,0.04)}50%{box-shadow:0 0 25px rgba(0,240,255,0.35),inset 0 0 20px rgba(0,240,255,0.08)}}
 
-/* 祝福语 */
-.blessing-lines {
-  text-align: center;
-  margin-bottom: 25px;
-}
-.blessing-line {
-  font-size: 15px;
-  color: rgba(255,255,255,0.8);
-  line-height: 2.2;
-  letter-spacing: 1px;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: lineFadeIn 0.8s ease forwards;
-}
-.blessing-line:nth-child(1) { animation-delay: 0.5s; }
-.blessing-line:nth-child(2) { animation-delay: 0.8s; }
-.blessing-line:nth-child(3) { animation-delay: 1.1s; }
-.blessing-line:nth-child(4) { animation-delay: 1.4s; }
-.blessing-line:nth-child(5) { animation-delay: 1.7s; }
-@keyframes lineFadeIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-.hl-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,240,255,0.5); font-weight: 700; }
-.hl-magenta { color: var(--neon-magenta); text-shadow: 0 0 10px rgba(255,0,170,0.5); font-weight: 700; }
-.hl-gold { color: var(--neon-gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); font-weight: 700; }
-.hl-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,136,0.5); font-weight: 700; }
+.div{width:50%;height:1px;margin:0 auto 22px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);position:relative}
+.div::after{content:'◆';position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
 
-/* 签名 */
-.signature {
-  text-align: center;
-  font-family: 'Courier New', monospace;
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 3px;
-  margin-top: 20px;
-}
-.signature .heart {
-  color: var(--neon-magenta);
-  animation: heartBeat 1.5s ease-in-out infinite;
-}
-@keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
+.bless{text-align:center;margin-bottom:22px}
+.bless-line{font-size:15px;color:rgba(255,255,255,0.78);line-height:2.3;letter-spacing:1px;opacity:0;transform:translateY(10px);animation:blFadeIn 0.8s ease forwards}
+.bless-line:nth-child(1){animation-delay:0.6s}.bless-line:nth-child(2){animation-delay:0.9s}
+.bless-line:nth-child(3){animation-delay:1.2s}.bless-line:nth-child(4){animation-delay:1.5s}.bless-line:nth-child(5){animation-delay:1.8s}
+@keyframes blFadeIn{to{opacity:1;transform:translateY(0)}}
+.hl-c{color:var(--cyan);text-shadow:0 0 10px rgba(0,240,255,0.5);font-weight:700}
+.hl-m{color:var(--magenta);text-shadow:0 0 10px rgba(255,0,170,0.5);font-weight:700}
+.hl-g{color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,0.5);font-weight:700}
+.hl-gr{color:var(--green);text-shadow:0 0 10px rgba(0,255,136,0.5);font-weight:700}
 
-/* === 侧边数据流 === */
-.data-stream {
-  position: fixed;
-  font-family: 'Courier New', monospace;
-  font-size: 10px;
-  color: rgba(0,240,255,0.2);
-  line-height: 1.6;
-  z-index: 15;
-  pointer-events: none;
-  overflow: hidden;
-}
-.data-stream-left { left: 20px; top: 80px; height: calc(100vh - 160px); width: 120px; }
-.data-stream-right { right: 20px; top: 80px; height: calc(100vh - 160px); width: 120px; text-align: right; }
-.data-stream .item {
-  opacity: 0;
-  animation: streamFade 8s linear infinite;
-}
-@keyframes streamFade {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
-}
+.sig{text-align:center;font-family:'Courier New',monospace;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:3px;margin-top:18px}
+.sig .ht{color:var(--magenta);animation:htBeat 1.5s ease-in-out infinite;display:inline-block}
+@keyframes htBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
-/* === 浮动粒子 === */
-.floating-particle {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 12;
-  animation: particleFloat linear infinite;
-}
-@keyframes particleFloat {
-  from { transform: translateY(100vh) translateX(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  to { transform: translateY(-100px) translateX(var(--drift, 20px)); opacity: 0; }
-}
+.fp{position:fixed;border-radius:50%;pointer-events:none;z-index:10;animation:fpFloat linear infinite}
+@keyframes fpFloat{from{transform:translateY(105vh) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}to{transform:translateY(-50px) translateX(var(--drift,20px));opacity:0}}
 
-/* 按钮 */
-#toggle-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  background: rgba(10,10,30,0.8);
-  border: 1px solid rgba(0,240,255,0.4);
-  color: var(--neon-cyan);
-  font-size: 22px;
-  cursor: pointer;
-  z-index: 100;
-  box-shadow: 0 0 15px rgba(0,240,255,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  backdrop-filter: blur(5px);
-}
-#toggle-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 25px rgba(0,240,255,0.5);
-  background: rgba(0,240,255,0.1);
-}
+.burst{position:fixed;border-radius:50%;pointer-events:none;z-index:100;animation:burstFly 1.5s ease-out forwards}
+@keyframes burstFly{from{transform:translate(0,0) scale(1);opacity:1}to{transform:translate(var(--bx),var(--by)) scale(0);opacity:0}}
 
-/* 角落标签 */
-.corner-label {
-  position: fixed;
-  font-family: 'Courier New', monospace;
-  font-size: 9px;
-  color: rgba(0,240,255,0.3);
-  letter-spacing: 2px;
-  z-index: 20;
-  pointer-events: none;
-}
-.cl-top { top: 20px; left: 50%; transform: translateX(-50%); }
-.cl-bottom { bottom: 20px; left: 50%; transform: translateX(-50%); }
+#btn{position:fixed;bottom:22px;right:22px;width:46px;height:46px;border-radius:50%;background:rgba(10,10,30,0.8);
+  border:1px solid rgba(0,240,255,0.3);color:var(--cyan);font-size:18px;cursor:pointer;z-index:100;
+  display:flex;align-items:center;justify-content:center;transition:all 0.3s;backdrop-filter:blur(5px);box-shadow:0 0 12px rgba(0,240,255,0.2)}
+#btn:hover{transform:scale(1.1);box-shadow:0 0 22px rgba(0,240,255,0.4);background:rgba(0,240,255,0.08)}
 
-/* 移动端 */
-@media (max-width: 480px) {
-  .holo-card { padding: 35px 25px; width: 94%; }
-  .name-glow { font-size: 38px; letter-spacing: 4px; }
-  .data-stream { display: none; }
-  .hud-corner { width: 35px; height: 35px; }
-  .blessing-line { font-size: 14px; line-height: 2; }
-  .birthday-badge { font-size: 14px; padding: 6px 20px; }
+@media(max-width:480px){
+  .holo{padding:30px 22px 30px;width:94%}
+  .nm{font-size:36px;letter-spacing:4px}
+  .data-stream{display:none}
+  .hud-c{width:30px;height:30px}
+  .hud-c::before,.hud-c::after{width:20px;height:20px}
+  .bless-line{font-size:14px;line-height:2}
+  .bd-badge{font-size:13px;padding:6px 20px}
+  .corner-lbl{font-size:7px}
 }
-
-::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
 
-<!-- 背景粒子 Canvas -->
-<canvas id="bg-canvas"></canvas>
-
-<!-- 网格地面 -->
+<canvas id="matrix-rain"></canvas>
+<canvas id="name-sphere"></canvas>
+<canvas id="particle-net"></canvas>
+<div class="scanline"></div>
+<div class="center-glow"></div>
 <div class="grid-floor"></div>
 
-<!-- 扫描线 -->
-<div class="scanline"></div>
+<div class="hud-c hud-tl"></div>
+<div class="hud-c hud-tr"></div>
+<div class="hud-c hud-bl"></div>
+<div class="hud-c hud-br"></div>
 
-<!-- 中央光晕 -->
-<div class="center-glow"></div>
+<div class="corner-lbl cl-top">⬢ BIRTHDAY PROTOCOL v3.0 · CLASS 计科三班 ⬢</div>
+<div class="corner-lbl cl-bot">⬢ ZENG XIYUE · HAPPY BIRTHDAY 2026 ⬢</div>
 
-<!-- HUD 边框 -->
-<div class="hud-corner hud-tl"></div>
-<div class="hud-corner hud-tr"></div>
-<div class="hud-corner hud-bl"></div>
-<div class="hud-corner hud-br"></div>
-
-<!-- 角落标签 -->
-<div class="corner-label cl-top">⬢ BIRTHDAY PROTOCOL v2.0 ⬢</div>
-<div class="corner-label cl-bottom">⬢ ZENG XIYUE · 2026 ⬢</div>
-
-<!-- 左侧数据流 -->
-<div class="data-stream data-stream-left" id="stream-left"></div>
-
-<!-- 右侧数据流 -->
-<div class="data-stream data-stream-right" id="stream-right"></div>
-
-<!-- 浮动粒子 -->
+<div class="data-stream ds-left" id="dsL"></div>
+<div class="data-stream ds-right" id="dsR"></div>
 <div id="particles"></div>
+<div id="burst"></div>
 
-<!-- 加载序列 -->
-<div id="loading-screen">
-  <div class="loading-title">⬢ SYSTEM BOOT ⬢</div>
-  <div class="loading-text" id="boot-text"></div>
-  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+<div id="loading">
+  <div class="l-title">⬢ SYSTEM BOOT SEQUENCE ⬢</div>
+  <div class="l-text" id="bootText"></div>
+  <div class="l-bar"><div class="l-fill"></div></div>
 </div>
 
-<!-- 主内容 -->
-<div id="main-content">
-  <div class="holo-card">
-    <!-- 卡片顶部 HUD -->
-    <div class="card-hud">
+<div id="main">
+  <div class="holo">
+    <div class="h-hud">
       <span><span class="dot"></span>STATUS: ONLINE</span>
-      <span>SYS://BIRTHDAY_2026</span>
+      <span>SYS://BIRTHDAY_2026.v3</span>
     </div>
-
-    <!-- 名字 -->
-    <div class="name-glow">曾曦玥</div>
-    <div class="name-en">Z E N G &nbsp; X I &nbsp; Y U E</div>
-
-    <!-- 生日标记 -->
-    <div class="birthday-badge">⬢ HAPPY BIRTHDAY ⬢</div>
-
-    <!-- 分隔线 -->
-    <div class="divider"></div>
-
-    <!-- 祝福语 -->
-    <div class="blessing-lines">
-      <div class="blessing-line">🌊 从 <span class="hl-cyan">湖北</span> 到 <span class="hl-magenta">福建</span>，跨越千里山河</div>
-      <div class="blessing-line">☀️ 愿你的每一天，都沐浴在 <span class="hl-gold">阳光</span> 之下</div>
-      <div class="blessing-line">🔥 烈日当空，有人为你撑起 <span class="hl-green">清凉</span></div>
-      <div class="blessing-line">☔ 骤雨突至，始终有 <span class="hl-cyan">伞</span> 的庇护</div>
-      <div class="blessing-line">⬢ 无论晴雨，路上总有 <span class="hl-magenta">温柔</span> 相伴 ⬢</div>
+    <div class="nm" id="nameEl">曾曦玥</div>
+    <div class="nm-en">Z E N G &nbsp; X I &nbsp; Y U E</div>
+    <div class="bd-badge">⬢ HAPPY BIRTHDAY ⬢</div>
+    <div class="div"></div>
+    <div class="bless">
+      <div class="bless-line">🌊 从 <span class="hl-c">湖北</span> 到 <span class="hl-m">福建</span>，跨越千里山河</div>
+      <div class="bless-line">☀️ 愿你的每一天，都沐浴在 <span class="hl-g">阳光</span> 之下</div>
+      <div class="bless-line">🔥 烈日当空，有人为你撑起 <span class="hl-gr">清凉</span></div>
+      <div class="bless-line">☔ 骤雨突至，始终有 <span class="hl-c">伞</span> 的庇护</div>
+      <div class="bless-line">⬢ 无论晴雨，路上总有 <span class="hl-m">温柔</span> 相伴 ⬢</div>
     </div>
-
-    <!-- 签名 -->
-    <div class="signature">
-      ─── ⬢ <span class="heart">♥</span> ⬢ 岁岁平安 · 年年如意 ⬢ ───
-    </div>
+    <div class="sig">─── ⬢ <span class="ht">♥</span> ⬢ 计科三班 · 全体同学 ⬢ ───</div>
   </div>
 </div>
 
-<!-- 切换按钮 -->
-<button id="toggle-btn" onclick="toggleEffect()">⬢</button>
+<button id="btn" onclick="toggleFx()">⬢</button>
 
 <script>
-// === 启动序列 ===
+// ===== 计科三班全员花名册（35人，曾曦玥=31号，黄锦浩=17号） =====
+const NAMES = [
+  '郭奕泽','冯奕淳','陈志浩','陈贞毅','蔡清逸','陈伊','陈宏铭','蔡诗淇',
+  '邱楚轩','谢银','王诗琳','王锐','卢子甜','林梓萱','林翔宇','林家勇',
+  '黄锦浩','胡袁瑞','黄胜贤','雷祥','林爱婷','赵铮','郑景文','郑明涵',
+  '曾宇柘','俞泓杨','叶奕辉','许家磊','郑翔睿','张俊锡','曾曦玥',
+  '李思博','朱涵琳','赵晔歆','张迅'
+];
+const HERO_IDX = 30;   // 曾曦玥 (#31)
+const SENDER_IDX = 16; // 黄锦浩 (#17)
+
+// ===== 启动序列 =====
 const bootLines = [
-  '> INITIALIZING BIRTHDAY PROTOCOL...',
-  '> CONNECTING TO REMOTE SERVER [HUBEI → FUJIAN]...',
+  '> INITIALIZING BIRTHDAY PROTOCOL v3.0...',
+  '> LOADING CLASS DATABASE [计科三班]... 35 MEMBERS',
   '> DECRYPTING BLESSING DATA... OK',
-  '> LOADING PARTICLE ENGINE... OK',
+  '> BOOTING MATRIX RAIN ENGINE... OK',
+  '> DEPLOYING NAME CONSTELLATION... OK',
   '> CALIBRATING HOLOGRAPHIC DISPLAY... OK',
   '> INJECTING SUNBEAM MODULE... OK',
   '> DEPLOYING UMBRELLA PROTECTION... OK',
-  '> ALL SYSTEMS NOMINAL',
+  '> PARTICLE NETWORK ONLINE',
+  '> ALL SYSTEMS NOMINAL ⬢',
   '> WELCOME, ZENG XIYUE ⬢'
 ];
-
-const bootText = document.getElementById('boot-text');
+const bootText = document.getElementById('bootText');
 bootLines.forEach((line, i) => {
   const div = document.createElement('div');
-  div.className = 'line';
-  div.style.animationDelay = (0.2 + i * 0.3) + 's';
+  div.className = 'ln';
+  div.style.animationDelay = (0.2 + i * 0.25) + 's';
   div.textContent = line;
   bootText.appendChild(div);
 });
 
-// 加载完成后显示主内容
 setTimeout(() => {
-  document.getElementById('loading-screen').classList.add('hide');
+  document.getElementById('loading').classList.add('hide');
   setTimeout(() => {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('main-content').classList.add('show');
-  }, 1000);
-}, 3200);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').classList.add('show');
+    createBurst(window.innerWidth/2, window.innerHeight/2, 40);
+  }, 1200);
+}, 3500);
 
-// === 粒子背景 Canvas ===
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-let mouseX = 0, mouseY = 0;
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+// ===== 爆发粒子 =====
+const FX_COLORS = ['0,240,255','170,0,255','255,0,170','0,255,136','255,215,0'];
+function createBurst(cx, cy, count) {
+  const burstDiv = document.getElementById('burst');
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'burst';
+    const size = 3 + Math.random() * 5;
+    const color = FX_COLORS[Math.floor(Math.random() * FX_COLORS.length)];
+    const angle = Math.random() * Math.PI * 2;
+    const dist = (count > 20 ? 100 : 50) + Math.random() * (count > 20 ? 250 : 120);
+    p.style.width = size + 'px'; p.style.height = size + 'px';
+    p.style.left = cx + 'px'; p.style.top = cy + 'px';
+    p.style.background = `rgba(${color}, 0.9)`;
+    p.style.boxShadow = `0 0 10px rgba(${color}, 0.6)`;
+    p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--by', Math.sin(angle) * dist + 'px');
+    burstDiv.appendChild(p);
+    setTimeout(() => p.remove(), 1600);
+  }
 }
-resize();
-window.addEventListener('resize', resize);
 
-window.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
+// ===== 矩阵名字雨（35位同学名字轮播下落） =====
+const matrixCanvas = document.getElementById('matrix-rain');
+const mCtx = matrixCanvas.getContext('2d');
+function resizeMatrix() { matrixCanvas.width = window.innerWidth; matrixCanvas.height = window.innerHeight; }
+resizeMatrix();
+window.addEventListener('resize', resizeMatrix);
 
-class Particle {
-  constructor() {
-    this.reset();
-  }
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2 + 0.5;
-    this.speedX = (Math.random() - 0.5) * 0.5;
-    this.speedY = (Math.random() - 0.5) * 0.5;
-    this.opacity = Math.random() * 0.5 + 0.1;
-    this.hue = Math.random() > 0.5 ? 180 : 300;
-    this.pulse = Math.random() * Math.PI * 2;
-  }
-  update() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    this.pulse += 0.02;
-    
-    // Mouse attraction
-    const dx = mouseX - this.x;
-    const dy = mouseY - this.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 200) {
-      this.x += dx * 0.002;
-      this.y += dy * 0.002;
+const fontSize = 16;
+const colCount = Math.floor(matrixCanvas.width / fontSize);
+const columns = new Array(colCount).fill(0).map(() => ({
+  y: Math.random() * window.innerHeight,
+  speed: 0.5 + Math.random() * 2,
+  nameIdx: Math.floor(Math.random() * NAMES.length),
+  timer: 0
+}));
+
+function drawMatrix() {
+  mCtx.fillStyle = 'rgba(3, 3, 10, 0.08)';
+  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  mCtx.font = fontSize + 'px "Noto Sans SC", monospace';
+  columns.forEach((col, i) => {
+    col.timer++;
+    if (col.timer > 40 + Math.random() * 60) {
+      col.nameIdx = Math.floor(Math.random() * NAMES.length);
+      col.timer = 0;
     }
-    
-    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-      this.reset();
+    const name = NAMES[col.nameIdx];
+    const x = i * fontSize, y = col.y;
+    const isHero = col.nameIdx === HERO_IDX;
+    mCtx.shadowColor = isHero ? '#ff00aa' : '#00f0ff';
+    mCtx.shadowBlur = 8;
+    mCtx.fillStyle = isHero ? 'rgba(255, 0, 170, 0.9)' : 'rgba(0, 240, 255, 0.8)';
+    mCtx.fillText(name[0], x, y);
+    mCtx.shadowBlur = 0;
+    for (let j = 1; j < name.length && y - j * fontSize > 0; j++) {
+      mCtx.fillStyle = isHero
+        ? `rgba(255, 0, 170, ${0.45 - j * 0.1})`
+        : `rgba(0, 240, 255, ${0.4 - j * 0.1})`;
+      mCtx.fillText(name[j], x, y - j * fontSize);
     }
-  }
-  draw() {
-    const o = this.opacity * (0.5 + Math.sin(this.pulse) * 0.5);
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${o})`;
-    ctx.fill();
-    // Glow
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${o * 0.1})`;
-    ctx.fill();
-  }
+    col.y += col.speed;
+    if (col.y - (name.length - 1) * fontSize > matrixCanvas.height) {
+      col.y = 0;
+      col.nameIdx = Math.floor(Math.random() * NAMES.length);
+      col.speed = 0.5 + Math.random() * 2;
+    }
+  });
+  requestAnimationFrame(drawMatrix);
 }
+drawMatrix();
 
-// Create particles
-for (let i = 0; i < 150; i++) {
-  particles.push(new Particle());
-}
+// ===== 3D 名字星座（全班名字环绕旋转，曾曦玥居中高亮） =====
+const sphereCanvas = document.getElementById('name-sphere');
+const sCtx = sphereCanvas.getContext('2d');
+function resizeSphere() { sphereCanvas.width = window.innerWidth; sphereCanvas.height = window.innerHeight; }
+resizeSphere();
+window.addEventListener('resize', resizeSphere);
 
-// Connection lines
-function drawConnections() {
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 120) {
-        const o = (1 - dist / 120) * 0.15;
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(0, 240, 255, ${o})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
+const sphereNames = NAMES.map((name, i) => ({
+  name, i,
+  phi: Math.acos(2 * Math.random() - 1),
+  theta: 2 * Math.PI * Math.random(),
+  rotSpeed: 0.002 + Math.random() * 0.003,
+  size: 10 + Math.random() * 6,
+  isHero: i === HERO_IDX,
+  isSender: i === SENDER_IDX,
+  twinkle: Math.random() * Math.PI * 2
+}));
+
+function drawSphere() {
+  sCtx.clearRect(0, 0, sphereCanvas.width, sphereCanvas.height);
+  const cx = sphereCanvas.width / 2, cy = sphereCanvas.height / 2;
+  const radius = Math.min(sphereCanvas.width, sphereCanvas.height) * 0.38;
+
+  // 先算所有投影点
+  const projected = sphereNames.map(n => {
+    const x3d = Math.sin(n.phi) * Math.cos(n.theta) * radius;
+    const y3d = Math.cos(n.phi) * radius * 0.4;
+    const z3d = Math.sin(n.phi) * Math.sin(n.theta) * radius;
+    const scale = 600 / (600 + z3d);
+    return { n, x3d, y3d, z3d, scale, x2d: cx + x3d * scale, y2d: cy + y3d * scale };
+  });
+
+  // 星座连线
+  for (let i = 0; i < projected.length; i++) {
+    for (let j = i + 1; j < projected.length; j++) {
+      const a = projected[i], b = projected[j];
+      const dx = a.x3d - b.x3d, dy = a.y3d - b.y3d, dz = a.z3d - b.z3d;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < radius * 0.4) {
+        const o = (1 - dist / (radius * 0.4)) * 0.08;
+        sCtx.beginPath();
+        sCtx.moveTo(a.x2d, a.y2d);
+        sCtx.lineTo(b.x2d, b.y2d);
+        sCtx.strokeStyle = `rgba(0, 240, 255, ${o})`;
+        sCtx.lineWidth = 0.5;
+        sCtx.stroke();
       }
     }
   }
+
+  // 画名字
+  projected.forEach(p => {
+    const n = p.n;
+    n.theta += n.rotSpeed;
+    n.twinkle += 0.03;
+    const depth = (p.z3d + radius) / (2 * radius);
+    const opacity = 0.15 + depth * 0.5;
+    const tw = 0.7 + Math.sin(n.twinkle) * 0.3;
+    sCtx.font = `bold ${n.size * p.scale}px "Noto Sans SC", sans-serif`;
+    sCtx.textAlign = 'center'; sCtx.textBaseline = 'middle';
+    if (n.isHero) {
+      sCtx.shadowColor = '#ff00aa'; sCtx.shadowBlur = 20 * p.scale;
+      sCtx.fillStyle = `rgba(255, 0, 170, ${Math.min(1, opacity * tw * 1.6)})`;
+    } else if (n.isSender) {
+      sCtx.shadowColor = '#ffd700'; sCtx.shadowBlur = 12 * p.scale;
+      sCtx.fillStyle = `rgba(255, 215, 0, ${opacity * tw})`;
+    } else {
+      sCtx.shadowColor = '#00f0ff'; sCtx.shadowBlur = 10 * p.scale;
+      sCtx.fillStyle = `rgba(0, 240, 255, ${opacity * tw})`;
+    }
+    sCtx.fillText(n.name, p.x2d, p.y2d);
+    sCtx.shadowBlur = 0;
+  });
+  requestAnimationFrame(drawSphere);
+}
+drawSphere();
+
+// ===== 粒子网络 =====
+const netCanvas = document.getElementById('particle-net');
+const nCtx = netCanvas.getContext('2d');
+function resizeNet() { netCanvas.width = window.innerWidth; netCanvas.height = window.innerHeight; }
+resizeNet();
+window.addEventListener('resize', resizeNet);
+
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+window.addEventListener('touchmove', e => { if(e.touches[0]){ mx = e.touches[0].clientX; my = e.touches[0].clientY; } }, {passive:true});
+
+const netP = [];
+for (let i = 0; i < 80; i++) {
+  netP.push({
+    x: Math.random() * netCanvas.width, y: Math.random() * netCanvas.height,
+    vx: (Math.random()-0.5)*0.8, vy: (Math.random()-0.5)*0.8,
+    size: 1+Math.random()*2, hue: Math.random()>0.5?180:300, pulse: Math.random()*Math.PI*2
+  });
 }
 
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Gradient background
-  const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
-  grad.addColorStop(0, '#0a0a2a');
-  grad.addColorStop(0.5, '#080818');
-  grad.addColorStop(1, '#050510');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  particles.forEach(p => { p.update(); p.draw(); });
-  drawConnections();
-  
-  requestAnimationFrame(animate);
+function drawNet() {
+  nCtx.clearRect(0,0,netCanvas.width,netCanvas.height);
+  netP.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.pulse += 0.03;
+    const dx = mx-p.x, dy = my-p.y, dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < 180 && dist > 0.001) { p.x += dx*0.003; p.y += dy*0.003; }
+    if (p.x<0||p.x>netCanvas.width) p.vx*=-1;
+    if (p.y<0||p.y>netCanvas.height) p.vy*=-1;
+    const o = 0.2+Math.sin(p.pulse)*0.15;
+    nCtx.beginPath(); nCtx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    nCtx.fillStyle = `hsla(${p.hue},100%,60%,${o})`; nCtx.fill();
+    nCtx.beginPath(); nCtx.arc(p.x,p.y,p.size*3,0,Math.PI*2);
+    nCtx.fillStyle = `hsla(${p.hue},100%,60%,${o*0.1})`; nCtx.fill();
+  });
+  for (let i=0;i<netP.length;i++) for (let j=i+1;j<netP.length;j++) {
+    const dx=netP[i].x-netP[j].x, dy=netP[i].y-netP[j].y, dist=Math.sqrt(dx*dx+dy*dy);
+    if (dist<130) {
+      nCtx.beginPath(); nCtx.moveTo(netP[i].x,netP[i].y); nCtx.lineTo(netP[j].x,netP[j].y);
+      nCtx.strokeStyle = `rgba(0,240,255,${(1-dist/130)*0.12})`; nCtx.lineWidth=0.5; nCtx.stroke();
+    }
+  }
+  requestAnimationFrame(drawNet);
 }
-animate();
+drawNet();
 
-// === 数据流 ===
+// ===== 数据流 =====
 const dataItems = [
-  '01001000 01010000',
-  'λ → ∞ · ∇φ = 0',
-  'SYS.OK · v2.0.26',
-  'HUBEI [42.0°N]',
-  'FUJIAN [26.0°N]',
-  'ΔDIST: 1,247 KM',
-  'STATUS: BLESSED',
-  'TEMP: ∞°C (LOVE)',
-  'RAIN.SHIELD: ON',
-  'SUNBEAM: ACTIVE',
-  '0xF0E8 0x2764 0x2764',
-  'BIRTHDAY.EXE',
-  'ZENG.XIYUE.2026',
-  'PROTECTION: ON',
-  'HOLOGRAM: STABLE',
-  'CORE: OPERATIONAL',
-  'LINK: ESTABLISHED',
-  'HAPPY BIRTHDAY ⬢',
+  '01001000 01010000','λ→∞·∇φ=0','SYS.OK·v3.0.26','HUBEI[42.0°N]','FUJIAN[26.0°N]',
+  'ΔDIST:1,247KM','STATUS:BLESSED','TEMP:∞°C(LOVE)','RAIN.SHIELD:ON','SUNBEAM:ACTIVE',
+  '0xF0E8 0x2764','BIRTHDAY.EXE','ZENG.XIYUE.2026','PROTECTION:ON','HOLOGRAM:STABLE',
+  'CORE:OPERATIONAL','LINK:ESTABLISHED','CLASS:计科三班','MEMBERS:35','HAPPY BIRTHDAY⬢',
+  '0x4E34 0x6656 0x73A2','PARTICLES:ONLINE','MATRIX.RAIN:ACTIVE','SPHERE:ROTATING'
 ];
-
 function fillStream(el, count) {
-  for (let i = 0; i < count; i++) {
+  for (let i=0;i<count;i++) {
     const div = document.createElement('div');
-    div.className = 'item';
-    div.textContent = dataItems[Math.floor(Math.random() * dataItems.length)];
-    div.style.animationDelay = (i * 0.8 + Math.random() * 2) + 's';
+    div.className='item';
+    div.textContent=dataItems[Math.floor(Math.random()*dataItems.length)];
+    div.style.animationDelay=(i*0.6+Math.random()*3)+'s';
     el.appendChild(div);
   }
 }
-fillStream(document.getElementById('stream-left'), 25);
-fillStream(document.getElementById('stream-right'), 25);
+fillStream(document.getElementById('dsL'),30);
+fillStream(document.getElementById('dsR'),30);
 
-// === 浮动粒子 ===
-function createFloatingParticles() {
-  const container = document.getElementById('particles');
-  const colors = ['0,240,255', '170,0,255', '255,0,170', '0,255,136'];
-  for (let i = 0; i < 30; i++) {
+// ===== 浮动粒子 =====
+(function createFloaters() {
+  const c = document.getElementById('particles');
+  for (let i=0;i<35;i++) {
     const p = document.createElement('div');
-    p.className = 'floating-particle';
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const size = 2 + Math.random() * 4;
-    p.style.width = size + 'px';
-    p.style.height = size + 'px';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.background = `rgba(${color}, 0.8)`;
-    p.style.boxShadow = `0 0 10px rgba(${color}, 0.6)`;
-    p.style.animationDuration = (5 + Math.random() * 10) + 's';
-    p.style.animationDelay = (Math.random() * 10) + 's';
-    p.style.setProperty('--drift', (Math.random() * 100 - 50) + 'px');
-    container.appendChild(p);
+    p.className='fp';
+    const color=FX_COLORS[Math.floor(Math.random()*FX_COLORS.length)];
+    const size=2+Math.random()*4;
+    p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=`rgba(${color},0.8)`;
+    p.style.boxShadow=`0 0 10px rgba(${color},0.6)`;
+    p.style.animationDuration=(6+Math.random()*12)+'s';
+    p.style.animationDelay=(Math.random()*10)+'s';
+    p.style.setProperty('--drift',(Math.random()*100-50)+'px');
+    c.appendChild(p);
   }
-}
-createFloatingParticles();
+})();
 
-// === 切换效果 ===
-let effectActive = true;
-function toggleEffect() {
-  effectActive = !effectActive;
-  document.querySelectorAll('.floating-particle').forEach(p => {
-    p.style.display = effectActive ? '' : 'none';
+// ===== 点击爆发 =====
+document.addEventListener('click', e => {
+  if (e.target === document.getElementById('btn')) return;
+  createBurst(e.clientX, e.clientY, 15);
+});
+
+// ===== 效果开关 =====
+let fxActive = true;
+function toggleFx() {
+  fxActive = !fxActive;
+  ['matrix-rain','name-sphere','particle-net'].forEach(id => {
+    document.getElementById(id).style.display = fxActive?'':'none';
   });
-  document.querySelectorAll('.data-stream .item').forEach(p => {
-    p.style.display = effectActive ? '' : 'none';
-  });
-  const btn = document.getElementById('toggle-btn');
-  btn.textContent = effectActive ? '⬢' : '⊘';
-  btn.style.borderColor = effectActive ? 'rgba(0,240,255,0.4)' : 'rgba(255,0,170,0.4)';
-  btn.style.color = effectActive ? 'var(--neon-cyan)' : 'var(--neon-magenta)';
+  document.querySelectorAll('.fp').forEach(p=>p.style.display=fxActive?'':'none');
+  document.querySelectorAll('.data-stream .item').forEach(p=>p.style.display=fxActive?'':'none');
+  const btn = document.getElementById('btn');
+  btn.textContent = fxActive?'⬢':'⊘';
+  btn.style.borderColor = fxActive?'rgba(0,240,255,0.3)':'rgba(255,0,170,0.3)';
+  btn.style.color = fxActive?'var(--cyan)':'var(--magenta)';
 }
 </script>
 
