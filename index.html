@@ -52,6 +52,11 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
 .data-stream .item{opacity:0;animation:streamFade 10s linear infinite}
 @keyframes streamFade{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}
 
+#age-flash{position:fixed;inset:0;z-index:1001;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;background:rgba(3,3,10,0.45)}
+#age-flash.show{animation:ageFlash 1.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+#age-flash .n{font-family:'Orbitron',sans-serif;font-size:min(32vw,220px);font-weight:900;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 45px rgba(255,0,170,0.55))}
+#age-flash .t{margin-top:8px;font-size:15px;letter-spacing:10px;color:rgba(255,255,255,0.65);font-family:'Courier New',monospace}
+@keyframes ageFlash{0%{opacity:0;transform:scale(0.3)}25%{opacity:1;transform:scale(1.06)}45%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.12)}}
 #loading{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s ease}
 #loading.hide{opacity:0;pointer-events:none}
 .l-title{font-family:'Courier New',monospace;font-size:14px;color:rgba(0,240,255,0.4);letter-spacing:6px;margin-bottom:30px;animation:lPulse 2s ease-in-out infinite}
@@ -70,7 +75,8 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
   background:linear-gradient(135deg,rgba(10,10,30,0.92),rgba(20,10,40,0.92));
   border:1px solid rgba(0,240,255,0.25); border-radius:4px;
   box-shadow:0 0 40px rgba(0,240,255,0.12),0 0 80px rgba(170,0,255,0.08),inset 0 0 40px rgba(0,240,255,0.03);
-  backdrop-filter:blur(12px); overflow:hidden; animation:hFadeIn 1.8s ease; }
+  backdrop-filter:blur(12px); overflow:hidden; }
+#main.show .holo{animation:hFadeIn 1.8s ease}
 @keyframes hFadeIn{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .holo::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,240,255,0.12),transparent);animation:hSweep 4s ease-in-out infinite}
 @keyframes hSweep{0%,100%{left:-100%}50%{left:100%}}
@@ -79,7 +85,8 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
 .h-hud .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);margin-right:6px;animation:dBlink 2s ease-in-out infinite}
 @keyframes dBlink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-.big18{text-align:center;font-family:'Orbitron','Noto Sans SC',sans-serif;line-height:1;margin-bottom:2px;animation:b18In 1.2s cubic-bezier(0.175,0.885,0.32,1.275) 0.3s both}
+.big18{text-align:center;font-family:'Orbitron','Noto Sans SC',sans-serif;line-height:1;margin-bottom:2px}
+#main.show .big18{animation:b18In 1.2s cubic-bezier(0.175,0.885,0.32,1.275) 0.3s both}
 @keyframes b18In{from{opacity:0;transform:scale(0.3) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(0)}}
 .n18{font-size:92px;font-weight:900;letter-spacing:2px;
   background:linear-gradient(135deg,var(--cyan) 20%,var(--purple) 55%,var(--magenta) 90%);
@@ -87,7 +94,8 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
   animation:agePulse 2.4s ease-in-out infinite}
 @keyframes agePulse{0%,100%{filter:drop-shadow(0 0 18px rgba(0,240,255,0.35))}50%{filter:drop-shadow(0 0 34px rgba(255,0,170,0.65))}}
 .th18{font-family:'Orbitron',sans-serif;font-size:20px;color:rgba(0,240,255,0.45);letter-spacing:4px;vertical-align:super;margin-left:4px}
-.age-cn{text-align:center;font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:6px;margin-bottom:10px;animation:blFadeIn 1s ease 0.9s both}
+.age-cn{text-align:center;font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:6px;margin-bottom:10px}
+#main.show .age-cn{animation:blFadeIn 1s ease 0.9s both}
 
 .nm{font-family:'Orbitron','Noto Sans SC',sans-serif;font-size:44px;font-weight:900;text-align:center;letter-spacing:5px;
   background:linear-gradient(135deg,var(--cyan),var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -104,7 +112,8 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
 .div::after{content:'◆';position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
 
 .bless{text-align:center;margin-bottom:16px}
-.bless-line{font-size:14.5px;color:rgba(255,255,255,0.78);line-height:2.15;letter-spacing:1px;opacity:0;transform:translateY(10px);animation:blFadeIn 0.9s ease forwards}
+.bless-line{font-size:14.5px;color:rgba(255,255,255,0.78);line-height:2.15;letter-spacing:1px;opacity:0;transform:translateY(10px)}
+#main.show .bless-line{animation:blFadeIn 0.9s ease forwards}
 @keyframes blFadeIn{to{opacity:1;transform:translateY(0)}}
 .bless-line:nth-child(1){animation-delay:0.6s}.bless-line:nth-child(2){animation-delay:1.0s}
 .bless-line:nth-child(3){animation-delay:1.4s}.bless-line:nth-child(4){animation-delay:1.8s}
@@ -166,6 +175,8 @@ html,body { width:100%; height:100%; overflow:hidden; background:var(--bg);
 <div class="data-stream ds-right" id="dsR"></div>
 <div id="particles"></div>
 <div id="burst"></div>
+
+<div id="age-flash"><div class="n">18</div><div class="t">HAPPY 18TH BIRTHDAY</div></div>
 
 <div id="loading">
   <div class="l-title">⬢ SYSTEM BOOT SEQUENCE · 18TH ANNIVERSARY ⬢</div>
@@ -246,16 +257,19 @@ ageDiv.style.animationDelay = (0.2 + bootLines.length * 0.28) + 's';
 ageDiv.style.color = '#ffd700';
 bootText.appendChild(ageDiv);
 let ageN = 0;
-const ageTimer = setInterval(() => {
-  ageN++;
-  ageDiv.textContent = '> LOADING AGE: ' + ageN + '/18' + (ageN === 18 ? ' ✓' : '');
-  if (ageN >= 18) clearInterval(ageTimer);
-}, 120);
+const ageStart = (0.2 + bootLines.length * 0.28) * 1000;
+setTimeout(() => {
+  const ageTimer = setInterval(() => {
+    ageN++;
+    ageDiv.textContent = '> LOADING AGE: ' + ageN + '/18' + (ageN === 18 ? ' ✓' : '');
+    if (ageN >= 18) clearInterval(ageTimer);
+  }, 130);
+}, ageStart);
 
 // 收尾欢迎行
 const endDiv = document.createElement('div');
 endDiv.className = 'ln';
-endDiv.style.animationDelay = (0.2 + bootLines.length * 0.28 + 2.4) + 's';
+endDiv.style.animationDelay = (0.2 + bootLines.length * 0.28 + 2.8) + 's';
 endDiv.style.color = '#ff00aa';
 endDiv.textContent = '> WELCOME TO ADULTHOOD, ZENG XIYUE ⬢';
 bootText.appendChild(endDiv);
@@ -270,7 +284,9 @@ setTimeout(() => {
     setTimeout(() => createBurst(window.innerWidth*0.22, window.innerHeight*0.32, 30), 900);
     setTimeout(() => createBurst(window.innerWidth*0.78, window.innerHeight*0.32, 30), 1500);
   }, 1200);
-}, 7600);
+}, 8500);
+
+setTimeout(() => { document.getElementById('age-flash').classList.add('show'); }, 7300);
 
 // ===== 爆发粒子 =====
 const FX_COLORS = ['0,240,255','170,0,255','255,0,170','0,255,136','255,215,0'];
